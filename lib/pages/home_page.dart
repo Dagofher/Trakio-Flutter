@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'device_settings_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -8,6 +9,19 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Trakio 🤖'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings, size: 24),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const DeviceSettingsPage(),
+                ),
+              );
+            },
+          ),
+        ],
         ),
       body: const Center(
         child: Text('Hola, Trakio!' ),

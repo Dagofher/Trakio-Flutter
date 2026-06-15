@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../desings/colors.dart';
+import '../pages/home_page.dart';
 import 'trakio_text_field.dart';
 
 class LoginForm extends StatefulWidget {
@@ -30,6 +31,13 @@ class _LoginFormState extends State<LoginForm> {
     await Future.delayed(const Duration(seconds: 2)); // simulación
 
     setState(() => _isLoading = false);
+
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
+    }
   }
 
   @override
