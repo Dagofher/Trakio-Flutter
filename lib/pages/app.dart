@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../desings/themes.dart';
-import 'home_page.dart';
+import 'login_page.dart';
 
 class TrakioApp extends StatelessWidget {
   const TrakioApp({super.key});
@@ -9,7 +9,7 @@ class TrakioApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
     theme: AppThemes.darkTheme,
-     home: const HomePage(),
+     home: const LoginPage(),
     
 
    );
