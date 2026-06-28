@@ -1,4 +1,6 @@
 import '../../../../core/result/result.dart';
+import '../entities/company_entity.dart';
+import '../entities/company_registration.dart';
 import '../entities/user_entity.dart';
 
 abstract interface class IAuthRepository {
@@ -11,6 +13,7 @@ abstract interface class IAuthRepository {
     required String email,
     required String password,
     required String displayName,
+    required CompanyRegistration company,
   });
 
   Future<Result<void>> signOut();
@@ -18,4 +21,6 @@ abstract interface class IAuthRepository {
   Future<Result<void>> sendPasswordReset({required String email});
 
   Future<Result<UserEntity?>> getCurrentUser();
+
+  Future<Result<CompanyEntity?>> getCompany(String companyId);
 }

@@ -1,0 +1,61 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function myProfile() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function myRole() {
+      return myProfile().role;
+    }
+
+    function myCompanyId() {
+      return myProfile().companyId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && myRole() == 'admin';
+    }
+
+    // ── users/ ─────────────────────────────────────────────
+    match /users/{userId} {
+      // El usuario puede leer su propio perfil; un admin lee los de su empresa.
+      allow read: if isSignedIn() &&
+        (request.auth.uid == userId ||
+         (isAdmin() && resource.data.companyId == myCompanyId()));
+
+      // Cada quien crea su propio documento al registrarse.
+      allow create: if isSignedIn() && request.auth.uid == userId;
+
+      // El propio usuario actualiza su perfil (sin cambiarse el rol);
+      // un admin de la misma empresa sí puede cambiar roles.
+      allow update: if isSignedIn() && (
+        (request.auth.uid == userId &&
+         request.resource.data.role == resource.data.role) ||
+        (isAdmin() && resource.data.companyId == myCompanyId())
+      );
+
+      allow delete: if isAdmin() && resource.data.companyId == myCompanyId();
+    }
+
+    // ── companies/ ─────────────────────────────────────────
+    match /companies/{companyId} {
+      // Cualquier usuario autenticado puede leer (necesario para unirse por nombre).
+      allow read: if isSignedIn();
+
+      // Se crea durante el registro del primer usuario (que será su owner).
+      allow create: if isSignedIn() &&
+        request.resource.data.ownerId == request.auth.uid;
+
+      // Solo un admin de esa empresa puede modificarla.
+      allow update, delete: if isAdmin() && companyId == myCompanyId();
+    }
+  }
+}

@@ -19,6 +19,21 @@ class Validators {
     return null;
   }
 
+  static String? company(String? value) {
+    final v = value?.trim() ?? '';
+    if (v.isEmpty) return 'Ingresa el nombre de la empresa';
+    if (v.length < 2) return 'El nombre es muy corto';
+    if (v.length > 60) return 'El nombre es muy largo';
+    return null;
+  }
+
+  static String? inviteCode(String? value) {
+    final v = value?.trim() ?? '';
+    if (v.isEmpty) return 'Ingresa el código de invitación';
+    if (v.length < 4) return 'Código demasiado corto';
+    return null;
+  }
+
   static String? email(String? value) {
     final v = value?.trim() ?? '';
     if (v.isEmpty) return 'Ingresa tu correo';

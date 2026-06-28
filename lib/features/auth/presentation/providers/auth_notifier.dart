@@ -1,7 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
+import '../../data/datasources/user_profile_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
+import '../../domain/entities/company_entity.dart';
+import '../../domain/entities/company_registration.dart';
 import '../../domain/repositories/i_auth_repository.dart';
 import '../../domain/usecases/send_password_reset_usecase.dart';
 import '../../domain/usecases/sign_in_usecase.dart';
@@ -16,8 +20,15 @@ final _authDatasourceProvider = Provider<AuthRemoteDatasource>(
   (ref) => AuthRemoteDatasource(FirebaseAuth.instance),
 );
 
+final _profileDatasourceProvider = Provider<UserProfileDatasource>(
+  (ref) => UserProfileDatasource(FirebaseFirestore.instance),
+);
+
 final _authRepositoryProvider = Provider<IAuthRepository>(
-  (ref) => AuthRepositoryImpl(ref.read(_authDatasourceProvider)),
+  (ref) => AuthRepositoryImpl(
+    ref.read(_authDatasourceProvider),
+    ref.read(_profileDatasourceProvider),
+  ),
 );
 
 // ── Provider público ──────────────────────────────────────
@@ -31,6 +42,18 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>(
     repository: ref.read(_authRepositoryProvider),
   ),
 );
+
+/// Empresa del usuario autenticado (para mostrar el código de invitación, etc.).
+final companyProvider = FutureProvider<CompanyEntity?>((ref) async {
+  final auth = ref.watch(authProvider);
+  if (auth is! AuthAuthenticated || auth.user.companyId == null) return null;
+  final result =
+      await ref.read(_authRepositoryProvider).getCompany(auth.user.companyId!);
+  return switch (result) {
+    Success(value: final company) => company,
+    Failure() => null,
+  };
+});
 
 // ── Notifier ──────────────────────────────────────────────
 
@@ -83,12 +106,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
     required String email,
     required String password,
     required String displayName,
+    required CompanyRegistration company,
   }) async {
     state = const AuthLoading();
     final result = await _signUp(
       email: email,
       password: password,
       displayName: displayName,
+      company: company,
     );
     switch (result) {
       case Success():

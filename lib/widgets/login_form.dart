@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../core/utils/validators.dart';
 import '../desings/colors.dart';
 import '../features/auth/presentation/providers/auth_notifier.dart';
@@ -91,7 +92,7 @@ class _ForgotPasswordButton extends StatelessWidget {
     return Align(
       alignment: Alignment.centerRight,
       child: TextButton(
-        onPressed: () => Navigator.pushNamed(context, '/forgot-password'),
+        onPressed: () => context.push('/forgot-password'),
         style: TextButton.styleFrom(
           padding: EdgeInsets.zero,
           minimumSize: const Size(0, 36),

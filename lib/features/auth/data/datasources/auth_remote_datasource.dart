@@ -16,6 +16,7 @@ class AuthRemoteDatasource {
     return _toEntity(credential.user!);
   }
 
+  /// Crea la cuenta en Firebase Auth y devuelve la entidad base (sin rol aún).
   Future<UserEntity> signUp({
     required String email,
     required String password,
@@ -31,6 +32,9 @@ class AuthRemoteDatasource {
 
   Future<void> signOut() => _auth.signOut();
 
+  /// Borra la cuenta recién creada (rollback si el registro no se completa).
+  Future<void> deleteCurrentUser() => _auth.currentUser?.delete() ?? Future.value();
+
   Future<void> sendPasswordReset({required String email}) =>
       _auth.sendPasswordResetEmail(email: email);
 
@@ -43,16 +47,5 @@ class AuthRemoteDatasource {
         uid: user.uid,
         email: user.email ?? '',
         displayName: user.displayName ?? '',
-      );
-}
-
-extension _UserEntityCopyWith on UserEntity {
-  UserEntity copyWith({String? displayName}) => UserEntity(
-        uid: uid,
-        email: email,
-        displayName: displayName ?? this.displayName,
-        role: role,
-        companyId: companyId,
-        departmentId: departmentId,
       );
 }

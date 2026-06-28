@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../desings/colors.dart';
 
 class LoginFooter extends StatelessWidget {
@@ -18,7 +19,7 @@ class LoginFooter extends StatelessWidget {
         ),
         const SizedBox(width: 4),
         TextButton(
-          onPressed: () => Navigator.pushNamed(context, '/register'),
+          onPressed: () => context.push('/register'),
           style: TextButton.styleFrom(
             padding: EdgeInsets.zero,
             minimumSize: const Size(0, 36),
