@@ -18,7 +18,7 @@ class LoginFooter extends StatelessWidget {
         ),
         const SizedBox(width: 4),
         TextButton(
-          onPressed: () {}, // TODO: navegar a RegisterPage
+          onPressed: () => Navigator.pushNamed(context, '/register'),
           style: TextButton.styleFrom(
             padding: EdgeInsets.zero,
             minimumSize: const Size(0, 36),

@@ -95,7 +95,7 @@ class _SectionHeader extends StatelessWidget {
           'Activa los permisos necesarios para que Trakio '
           'funcione correctamente en campo.',
           style: TextStyle(
-            color: AppColors.textColor.withOpacity(0.7),
+            color: AppColors.textColor.withValues(alpha: 0.7),
             fontSize: 14,
             height: 1.5,
           ),
@@ -113,10 +113,10 @@ class _InfoNote extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.accentColor.withOpacity(0.08),
+        color: AppColors.accentColor.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.accentColor.withOpacity(0.2),
+          color: AppColors.accentColor.withValues(alpha: 0.2),
         ),
       ),
       child: Row(
@@ -125,7 +125,7 @@ class _InfoNote extends StatelessWidget {
           Icon(
             Icons.info_outline_rounded,
             size: 16,
-            color: AppColors.accentColor.withOpacity(0.8),
+            color: AppColors.accentColor.withValues(alpha: 0.8),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -134,7 +134,7 @@ class _InfoNote extends StatelessWidget {
               'Trakio abrirá la Configuración del sistema. '
               'Es un requisito de seguridad de Android e iOS.',
               style: TextStyle(
-                color: AppColors.textColor.withOpacity(0.6),
+                color: AppColors.textColor.withValues(alpha: 0.6),
                 fontSize: 12,
                 height: 1.5,
               ),

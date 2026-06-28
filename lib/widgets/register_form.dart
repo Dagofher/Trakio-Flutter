@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/utils/validators.dart';
 import '../desings/colors.dart';
@@ -6,40 +7,53 @@ import '../features/auth/presentation/providers/auth_notifier.dart';
 import '../features/auth/presentation/providers/auth_state.dart';
 import 'trakio_text_field.dart';
 
-class LoginForm extends ConsumerStatefulWidget {
-  const LoginForm({super.key});
+class RegisterForm extends ConsumerStatefulWidget {
+  const RegisterForm({super.key});
 
   @override
-  ConsumerState<LoginForm> createState() => _LoginFormState();
+  ConsumerState<RegisterForm> createState() => _RegisterFormState();
 }
 
-class _LoginFormState extends ConsumerState<LoginForm> {
+class _RegisterFormState extends ConsumerState<RegisterForm> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  Future<void> _onLoginPressed() async {
+  Future<void> _onRegisterPressed() async {
     if (!_formKey.currentState!.validate()) return;
-    ref.read(authProvider.notifier).signIn(
+    ref.read(authProvider.notifier).signUp(
           email: _emailController.text.trim(),
           password: _passwordController.text,
+          displayName: _nameController.text.trim(),
         );
   }
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authProvider);
-    final isLoading = authState is AuthLoading;
+    final isLoading = ref.watch(authProvider) is AuthLoading;
 
     ref.listen<AuthState>(authProvider, (_, next) {
-      if (next is AuthError) {
+      if (next is AuthRegistrationSuccess) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Cuenta creada. Inicia sesión con tus credenciales.'),
+            backgroundColor: AppColors.accentColor,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      } else if (next is AuthError) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.message),
@@ -57,6 +71,19 @@ class _LoginFormState extends ConsumerState<LoginForm> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           TrakioTextField(
+            label: 'Nombre completo',
+            hint: 'Juan Pérez',
+            prefixIcon: Icons.person_outline_rounded,
+            controller: _nameController,
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(
+                RegExp(r"[a-zA-ZáéíóúüÁÉÍÓÚÜñÑ\s'-]"),
+              ),
+            ],
+            validator: Validators.name,
+          ),
+          const SizedBox(height: 20),
+          TrakioTextField(
             label: 'Correo corporativo',
             hint: 'usuario@empresa.com',
             prefixIcon: Icons.email_outlined,
@@ -71,50 +98,31 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             prefixIcon: Icons.lock_outline_rounded,
             controller: _passwordController,
             isPassword: true,
-            validator: Validators.password,
+            validator: Validators.strongPassword,
           ),
-          const SizedBox(height: 12),
-          const _ForgotPasswordButton(),
-          const SizedBox(height: 28),
-          _LoginButton(isLoading: isLoading, onPressed: _onLoginPressed),
+          const SizedBox(height: 20),
+          TrakioTextField(
+            label: 'Confirmar contraseña',
+            hint: '••••••••',
+            prefixIcon: Icons.lock_outline_rounded,
+            controller: _confirmPasswordController,
+            isPassword: true,
+            validator: (v) =>
+                Validators.confirmPassword(v, _passwordController.text),
+          ),
+          const SizedBox(height: 32),
+          _RegisterButton(isLoading: isLoading, onPressed: _onRegisterPressed),
         ],
       ),
     );
   }
 }
 
-class _ForgotPasswordButton extends StatelessWidget {
-  const _ForgotPasswordButton();
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: TextButton(
-        onPressed: () => Navigator.pushNamed(context, '/forgot-password'),
-        style: TextButton.styleFrom(
-          padding: EdgeInsets.zero,
-          minimumSize: const Size(0, 36),
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
-        child: const Text(
-          '¿Olvidaste tu contraseña?',
-          style: TextStyle(
-            color: AppColors.accentColor,
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _LoginButton extends StatelessWidget {
+class _RegisterButton extends StatelessWidget {
   final bool isLoading;
   final VoidCallback onPressed;
 
-  const _LoginButton({required this.isLoading, required this.onPressed});
+  const _RegisterButton({required this.isLoading, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +148,7 @@ class _LoginButton extends StatelessWidget {
                 ),
               )
             : const Text(
-                'Iniciar sesión',
+                'Crear cuenta',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,

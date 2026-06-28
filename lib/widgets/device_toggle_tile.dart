@@ -21,7 +21,7 @@ class DeviceToggleTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: feature.isActive
-              ? AppColors.accentColor.withOpacity(0.5)
+              ? AppColors.accentColor.withValues(alpha: 0.5)
               : AppColors.borderColor,
           width: 1.5,
         ),
@@ -54,8 +54,8 @@ class _FeatureIcon extends StatelessWidget {
       height: 46,
       decoration: BoxDecoration(
         color: feature.isActive
-            ? AppColors.accentColor.withOpacity(0.15)
-            : AppColors.borderColor.withOpacity(0.3),
+            ? AppColors.accentColor.withValues(alpha: 0.15)
+            : AppColors.borderColor.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Icon(
@@ -63,7 +63,7 @@ class _FeatureIcon extends StatelessWidget {
         size: 22,
         color: feature.isActive
             ? AppColors.accentColor
-            : AppColors.textColor.withOpacity(0.4),
+            : AppColors.textColor.withValues(alpha: 0.4),
       ),
     );
   }
@@ -94,7 +94,7 @@ class _FeatureInfo extends StatelessWidget {
           style: TextStyle(
             color: feature.isPermanentlyDenied
                 ? AppColors.errorColor
-                : AppColors.textColor.withOpacity(0.6),
+                : AppColors.textColor.withValues(alpha: 0.6),
             fontSize: 12,
             height: 1.4,
           ),
@@ -125,9 +125,9 @@ class _FeatureToggle extends StatelessWidget {
     return Switch(
       value: feature.isActive,
       onChanged: onToggle,
-      activeColor: AppColors.accentColor,
-      activeTrackColor: AppColors.accentColor.withOpacity(0.25),
-      inactiveThumbColor: AppColors.textColor.withOpacity(0.4),
+      activeThumbColor: AppColors.accentColor,
+      activeTrackColor: AppColors.accentColor.withValues(alpha: 0.25),
+      inactiveThumbColor: AppColors.textColor.withValues(alpha: 0.4),
       inactiveTrackColor: AppColors.borderColor,
     );
   }

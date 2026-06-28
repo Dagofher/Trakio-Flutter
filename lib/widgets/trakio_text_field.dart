@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../desings/colors.dart';
 
 class TrakioTextField extends StatefulWidget {
@@ -9,6 +10,7 @@ class TrakioTextField extends StatefulWidget {
   final TextEditingController controller;
   final TextInputType keyboardType;
   final String? Function(String?)? validator;
+  final List<TextInputFormatter>? inputFormatters;
 
   const TrakioTextField({
     super.key,
@@ -19,6 +21,7 @@ class TrakioTextField extends StatefulWidget {
     this.isPassword = false,
     this.keyboardType = TextInputType.text,
     this.validator,
+    this.inputFormatters,
   });
 
   @override
@@ -40,6 +43,7 @@ class _TrakioTextFieldState extends State<TrakioTextField> {
           obscureText: widget.isPassword && _obscureText,
           keyboardType: widget.keyboardType,
           validator: widget.validator,
+          inputFormatters: widget.inputFormatters,
           style: const TextStyle(
             color: Colors.white,
             fontSize: 15,
@@ -47,12 +51,12 @@ class _TrakioTextFieldState extends State<TrakioTextField> {
           decoration: InputDecoration(
             hintText: widget.hint,
             hintStyle: TextStyle(
-              color: AppColors.textColor.withOpacity(0.4),
+              color: AppColors.textColor.withValues(alpha: 0.4),
               fontSize: 15,
             ),
             prefixIcon: Icon(
               widget.prefixIcon,
-              color: AppColors.textColor.withOpacity(0.5),
+              color: AppColors.textColor.withValues(alpha: 0.5),
               size: 20,
             ),
             suffixIcon: widget.isPassword
@@ -123,7 +127,7 @@ class _PasswordToggleButton extends StatelessWidget {
       onPressed: onToggle,
       icon: Icon(
         isObscured ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-        color: AppColors.textColor.withOpacity(0.5),
+        color: AppColors.textColor.withValues(alpha: 0.5),
         size: 20,
       ),
     );

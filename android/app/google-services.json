@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "613906785717",
+    "project_id": "trakio-flutter",
+    "storage_bucket": "trakio-flutter.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:613906785717:android:193dee7dc95facc99265fc",
+        "android_client_info": {
+          "package_name": "com.example.trakio"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwBbPrwR4n6X1JIEBjskyFiy55pO-FvFs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
