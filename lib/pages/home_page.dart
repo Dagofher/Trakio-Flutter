@@ -44,20 +44,35 @@ class HomePage extends ConsumerWidget {
           ),
         ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              user == null ? '¡Hola, Trakio!' : '¡Hola, ${user.displayName}!',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+      body: ListView(
+        padding: const EdgeInsets.all(24),
+        children: [
+          const SizedBox(height: 12),
+          Center(
+            child: Column(
+              children: [
+                Text(
+                  user == null
+                      ? '¡Hola, Trakio!'
+                      : '¡Hola, ${user.displayName}!',
+                  style:
+                      const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                ),
+                if (user != null) ...[
+                  const SizedBox(height: 12),
+                  _RoleChip(role: user.role),
+                ],
+              ],
             ),
-            if (user != null) ...[
-              const SizedBox(height: 12),
-              _RoleChip(role: user.role),
-            ],
-          ],
-        ),
+          ),
+          const SizedBox(height: 32),
+          _NavCard(
+            icon: Icons.category_rounded,
+            title: 'Categorías',
+            subtitle: 'Gestiona las categorías de gasto',
+            onTap: () => context.push('/categories'),
+          ),
+        ],
       ),
     );
   }
@@ -88,6 +103,77 @@ class _RoleChip extends StatelessWidget {
           color: AppColors.accentColor,
           fontSize: 13,
           fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+class _NavCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _NavCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceColor,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.borderColor),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 46,
+              height: 46,
+              decoration: BoxDecoration(
+                color: AppColors.accentColor.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: AppColors.accentColor, size: 22),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: AppColors.textColor.withValues(alpha: 0.6),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.textColor.withValues(alpha: 0.5),
+            ),
+          ],
         ),
       ),
     );

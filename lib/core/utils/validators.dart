@@ -19,6 +19,24 @@ class Validators {
     return null;
   }
 
+  static String? categoryName(String? value) {
+    final v = value?.trim() ?? '';
+    if (v.isEmpty) return 'Ingresa un nombre';
+    if (v.length < 2) return 'Nombre muy corto';
+    if (v.length > 30) return 'Máximo 30 caracteres';
+    return null;
+  }
+
+  /// Monto opcional: vacío es válido; si hay valor, debe ser número positivo.
+  static String? optionalAmount(String? value) {
+    final v = value?.trim() ?? '';
+    if (v.isEmpty) return null;
+    final amount = double.tryParse(v);
+    if (amount == null) return 'Monto no válido';
+    if (amount <= 0) return 'Debe ser mayor que 0';
+    return null;
+  }
+
   static String? company(String? value) {
     final v = value?.trim() ?? '';
     if (v.isEmpty) return 'Ingresa el nombre de la empresa';

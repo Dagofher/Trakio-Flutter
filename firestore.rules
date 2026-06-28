@@ -57,5 +57,19 @@ service cloud.firestore {
       // Solo un admin de esa empresa puede modificarla.
       allow update, delete: if isAdmin() && companyId == myCompanyId();
     }
+
+    // ── categories/ ────────────────────────────────────────
+    match /categories/{categoryId} {
+      // Cualquier miembro de la empresa puede ver sus categorías.
+      allow read: if isSignedIn() && resource.data.companyId == myCompanyId();
+
+      // Solo un admin gestiona categorías, y siempre dentro de su empresa.
+      allow create: if isAdmin() &&
+        request.resource.data.companyId == myCompanyId();
+      allow update: if isAdmin() &&
+        resource.data.companyId == myCompanyId() &&
+        request.resource.data.companyId == myCompanyId();
+      allow delete: if isAdmin() && resource.data.companyId == myCompanyId();
+    }
   }
 }
