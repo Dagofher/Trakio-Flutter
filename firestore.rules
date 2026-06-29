@@ -130,5 +130,27 @@ service cloud.firestore {
         resource.data.userId == request.auth.uid &&
         resource.data.status in ['draft', 'pending'];
     }
+
+    // ── approvalRules/ ─────────────────────────────────────
+    match /approvalRules/{ruleId} {
+      allow read: if isSignedIn() && resource.data.companyId == myCompanyId();
+      allow create: if isAdmin() &&
+        request.resource.data.companyId == myCompanyId();
+      allow update: if isAdmin() &&
+        resource.data.companyId == myCompanyId() &&
+        request.resource.data.companyId == myCompanyId();
+      allow delete: if isAdmin() && resource.data.companyId == myCompanyId();
+    }
+
+    // ── notifications/ ─────────────────────────────────────
+    match /notifications/{notificationId} {
+      // El dueño lee y marca como leídas sus notificaciones.
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      // Cualquier usuario autenticado puede crear una notificación para otro
+      // (al aprobar/rechazar un gasto). La validación fina se hace en la app.
+      allow create: if isSignedIn();
+      // Solo el dueño puede actualizar (marcar como leída).
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
   }
 }

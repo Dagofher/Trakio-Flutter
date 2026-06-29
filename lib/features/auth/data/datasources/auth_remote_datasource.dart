@@ -32,6 +32,31 @@ class AuthRemoteDatasource {
 
   Future<void> signOut() => _auth.signOut();
 
+  /// Inicia sesión con GitHub (flujo web vía Custom Tab / popup).
+  Future<UserEntity> signInWithGithub() async {
+    final provider = GithubAuthProvider()..addScope('read:user');
+    final credential = await _auth.signInWithProvider(provider);
+    return _toEntity(credential.user!);
+  }
+
+  /// Cambia la contraseña reautenticando primero con la actual.
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final user = _auth.currentUser!;
+    final credential = EmailAuthProvider.credential(
+      email: user.email!,
+      password: currentPassword,
+    );
+    await user.reauthenticateWithCredential(credential);
+    await user.updatePassword(newPassword);
+  }
+
+  /// Actualiza el nombre visible en Firebase Auth.
+  Future<void> updateDisplayName(String displayName) =>
+      _auth.currentUser!.updateDisplayName(displayName);
+
   /// Borra la cuenta recién creada (rollback si el registro no se completa).
   Future<void> deleteCurrentUser() => _auth.currentUser?.delete() ?? Future.value();
 

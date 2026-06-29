@@ -33,3 +33,9 @@ class AuthPasswordResetSent extends AuthState {
 class AuthRegistrationSuccess extends AuthState {
   const AuthRegistrationSuccess();
 }
+
+/// Usuario autenticado vía proveedor social pero sin empresa: requiere onboarding.
+class AuthNeedsOnboarding extends AuthState {
+  final UserEntity user;
+  const AuthNeedsOnboarding(this.user);
+}

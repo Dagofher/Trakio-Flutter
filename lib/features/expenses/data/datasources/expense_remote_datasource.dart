@@ -25,6 +25,26 @@ class ExpenseRemoteDatasource {
         .map(_mapAndSort);
   }
 
+  Stream<List<ExpenseEntity>> watchCompanyExpenses(String companyId) {
+    return _expenses
+        .where('companyId', isEqualTo: companyId)
+        .snapshots()
+        .map(_mapAndSort);
+  }
+
+  Future<void> reviewExpense({
+    required String expenseId,
+    required String status,
+    required String reviewedBy,
+    String? comment,
+  }) {
+    return _expenses.doc(expenseId).update({
+      'status': status,
+      'reviewedBy': reviewedBy,
+      'reviewComment': comment,
+    });
+  }
+
   Future<void> createExpense(ExpenseEntity expense, {String? photoPath}) async {
     final ref = _expenses.doc();
 

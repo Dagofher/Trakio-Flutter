@@ -6,7 +6,9 @@ import '../../data/datasources/user_profile_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/company_entity.dart';
 import '../../domain/entities/company_registration.dart';
+import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/i_auth_repository.dart';
+import '../../../../core/presentation/crud_action_state.dart';
 import '../../domain/usecases/send_password_reset_usecase.dart';
 import '../../domain/usecases/sign_in_usecase.dart';
 import '../../domain/usecases/sign_out_usecase.dart';
@@ -132,6 +134,31 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  Future<void> signInWithGithub() async {
+    state = const AuthLoading();
+    final result = await _repository.signInWithGithub();
+    switch (result) {
+      case Success(value: final user):
+        // Sin empresa → necesita onboarding; con empresa → autenticado.
+        state = user.companyId == null
+            ? AuthNeedsOnboarding(user)
+            : AuthAuthenticated(user);
+      case Failure(message: final msg):
+        state = AuthError(msg);
+    }
+  }
+
+  /// Marca al usuario como autenticado (usado tras onboarding o editar perfil).
+  void markAuthenticated(UserEntity user) {
+    state = AuthAuthenticated(user);
+  }
+
+  /// Usuario actualmente autenticado, si lo hay.
+  UserEntity? get currentUser {
+    final s = state;
+    return s is AuthAuthenticated ? s.user : null;
+  }
+
   Future<void> signOut() async {
     await _signOut();
     state = const AuthUnauthenticated();
@@ -151,4 +178,78 @@ class AuthNotifier extends StateNotifier<AuthState> {
   void clearError() {
     if (state is AuthError) state = const AuthUnauthenticated();
   }
+}
+
+// ── Acciones de cuenta (onboarding, contraseña, nombre) ───
+
+final accountActionProvider =
+    StateNotifierProvider<AccountActionNotifier, CrudActionState>(
+  (ref) => AccountActionNotifier(
+    repository: ref.read(_authRepositoryProvider),
+    auth: ref.read(authProvider.notifier),
+  ),
+);
+
+class AccountActionNotifier extends StateNotifier<CrudActionState> {
+  final IAuthRepository _repository;
+  final AuthNotifier _auth;
+
+  AccountActionNotifier({
+    required IAuthRepository repository,
+    required AuthNotifier auth,
+  })  : _repository = repository,
+        _auth = auth,
+        super(const CrudIdle());
+
+  Future<void> completeOnboarding({
+    required UserEntity baseUser,
+    required CompanyRegistration company,
+  }) async {
+    state = const CrudLoading();
+    final result = await _repository.completeOnboarding(
+      baseUser: baseUser,
+      company: company,
+    );
+    switch (result) {
+      case Success(value: final user):
+        _auth.markAuthenticated(user);
+        state = const CrudSuccess('Bienvenido a Trakio');
+      case Failure(message: final msg):
+        state = CrudError(msg);
+    }
+  }
+
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    state = const CrudLoading();
+    final result = await _repository.changePassword(
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    );
+    state = switch (result) {
+      Success() => const CrudSuccess('Contraseña actualizada'),
+      Failure(message: final msg) => CrudError(msg),
+    };
+  }
+
+  Future<void> updateDisplayName(String displayName) async {
+    final current = _auth.currentUser;
+    if (current == null) return;
+    state = const CrudLoading();
+    final result = await _repository.updateDisplayName(
+      current: current,
+      displayName: displayName,
+    );
+    switch (result) {
+      case Success(value: final user):
+        _auth.markAuthenticated(user);
+        state = const CrudSuccess('Nombre actualizado');
+      case Failure(message: final msg):
+        state = CrudError(msg);
+    }
+  }
+
+  void reset() => state = const CrudIdle();
 }

@@ -23,4 +23,25 @@ abstract interface class IAuthRepository {
   Future<Result<UserEntity?>> getCurrentUser();
 
   Future<Result<CompanyEntity?>> getCompany(String companyId);
+
+  /// Inicia sesión con GitHub. Devuelve el perfil si ya existe en Firestore,
+  /// o un UserEntity SIN companyId (necesita onboarding) si es la primera vez.
+  Future<Result<UserEntity>> signInWithGithub();
+
+  /// Completa el onboarding de un usuario social: lo asocia a una empresa.
+  Future<Result<UserEntity>> completeOnboarding({
+    required UserEntity baseUser,
+    required CompanyRegistration company,
+  });
+
+  Future<Result<void>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  });
+
+  /// Actualiza el nombre visible (Auth + perfil Firestore).
+  Future<Result<UserEntity>> updateDisplayName({
+    required UserEntity current,
+    required String displayName,
+  });
 }

@@ -5,6 +5,7 @@ import '../desings/colors.dart';
 import '../features/auth/domain/entities/user_entity.dart';
 import '../features/auth/presentation/providers/auth_notifier.dart';
 import '../features/auth/presentation/providers/auth_state.dart';
+import '../features/notifications/presentation/providers/notifications_providers.dart';
 import 'device_settings_page.dart';
 
 class HomePage extends ConsumerWidget {
@@ -20,6 +21,10 @@ class HomePage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Trakio 🤖'),
         actions: [
+          _NotificationBell(
+            unread: ref.watch(unreadNotificationsCountProvider),
+            onTap: () => context.push('/notifications'),
+          ),
           if (user != null && user.isAdmin)
             IconButton(
               icon: const Icon(Icons.admin_panel_settings_rounded, size: 24),
@@ -39,9 +44,9 @@ class HomePage extends ConsumerWidget {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.logout_rounded, size: 24),
-            tooltip: 'Cerrar sesión',
-            onPressed: () => ref.read(authProvider.notifier).signOut(),
+            icon: const Icon(Icons.person_outline_rounded, size: 24),
+            tooltip: 'Perfil',
+            onPressed: () => context.push('/profile'),
           ),
         ],
       ),
@@ -97,6 +102,20 @@ class HomePage extends ConsumerWidget {
           if (canManage) ...[
             const SizedBox(height: 12),
             _NavCard(
+              icon: Icons.fact_check_rounded,
+              title: 'Aprobaciones',
+              subtitle: 'Revisa los gastos pendientes',
+              onTap: () => context.push('/approvals'),
+            ),
+            const SizedBox(height: 12),
+            _NavCard(
+              icon: Icons.rule_rounded,
+              title: 'Reglas de aprobación',
+              subtitle: 'Automatiza la aprobación por monto',
+              onTap: () => context.push('/approval-rules'),
+            ),
+            const SizedBox(height: 12),
+            _NavCard(
               icon: Icons.apartment_rounded,
               title: 'Departamentos',
               subtitle: 'Organiza tu empresa por áreas',
@@ -105,6 +124,49 @@ class HomePage extends ConsumerWidget {
           ],
         ],
       ),
+    );
+  }
+}
+
+class _NotificationBell extends StatelessWidget {
+  final int unread;
+  final VoidCallback onTap;
+
+  const _NotificationBell({required this.unread, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.notifications_rounded, size: 24),
+          tooltip: 'Notificaciones',
+          onPressed: onTap,
+        ),
+        if (unread > 0)
+          Positioned(
+            top: 8,
+            right: 8,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+              decoration: const BoxDecoration(
+                color: AppColors.errorColor,
+                shape: BoxShape.circle,
+              ),
+              child: Text(
+                unread > 9 ? '9+' : '$unread',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

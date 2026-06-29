@@ -16,6 +16,30 @@ class ExpenseRepositoryImpl implements IExpenseRepository {
       _datasource.watchExpensesByBudget(budgetId);
 
   @override
+  Stream<List<ExpenseEntity>> watchCompanyExpenses(String companyId) =>
+      _datasource.watchCompanyExpenses(companyId);
+
+  @override
+  Future<Result<void>> reviewExpense({
+    required String expenseId,
+    required ExpenseStatus status,
+    required String reviewedBy,
+    String? comment,
+  }) async {
+    try {
+      await _datasource.reviewExpense(
+        expenseId: expenseId,
+        status: status.name,
+        reviewedBy: reviewedBy,
+        comment: comment,
+      );
+      return const Success(null);
+    } catch (_) {
+      return const Failure('No se pudo procesar la revisión.');
+    }
+  }
+
+  @override
   Future<Result<void>> createExpense(
     ExpenseEntity expense, {
     String? photoPath,

@@ -4,6 +4,7 @@ import '../widgets/login_header.dart';
 import '../widgets/login_form.dart';
 import '../widgets/social_divider.dart';
 import '../widgets/social_login_button.dart';
+import '../widgets/github_login_button.dart';
 import '../widgets/login_footer.dart';
 
 class LoginPage extends StatelessWidget {
@@ -32,11 +33,7 @@ class LoginPage extends StatelessWidget {
                 onPressed: null, // TODO: conectar con Google Auth
               ),
               const SizedBox(height: 12),
-              const SocialLoginButton(
-                label: 'Continuar con GitHub',
-                icon: Icons.code_rounded,
-                onPressed: null, // TODO: conectar con GitHub Auth
-              ),
+              const GithubLoginButton(),
               const SizedBox(height: 48),
               const LoginFooter(),
               const SizedBox(height: 24),

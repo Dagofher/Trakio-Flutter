@@ -8,6 +8,7 @@ import 'package:latlong2/latlong.dart';
 import '../core/presentation/crud_action_state.dart';
 import '../core/utils/validators.dart';
 import '../desings/colors.dart';
+import '../features/approval_rules/presentation/providers/approval_rules_providers.dart';
 import '../features/auth/presentation/providers/auth_notifier.dart';
 import '../features/auth/presentation/providers/auth_state.dart';
 import '../features/budgets/domain/entities/budget_entity.dart';
@@ -105,6 +106,25 @@ class _ExpenseFormPageState extends ConsumerState<ExpenseFormPage> {
     if (auth is! AuthAuthenticated) return;
     final user = auth.user;
 
+    // Resolver estado inicial: borrador, o aplicar reglas de aprobación.
+    ExpenseStatus status = ExpenseStatus.draft;
+    String? reviewedBy;
+    if (!asDraft) {
+      final rules =
+          ref.read(approvalRulesStreamProvider).valueOrNull ?? const [];
+      final resolution = ref.read(approvalRuleEngineProvider).resolve(
+            rules: rules,
+            amount: amount,
+            categoryId: _categoryId!,
+          );
+      if (resolution.autoApprove) {
+        status = ExpenseStatus.approved;
+        reviewedBy = 'system';
+      } else {
+        status = ExpenseStatus.pending;
+      }
+    }
+
     final expense = ExpenseEntity(
       id: '',
       companyId: user.companyId ?? '',
@@ -115,7 +135,8 @@ class _ExpenseFormPageState extends ConsumerState<ExpenseFormPage> {
       description: _descriptionController.text.trim(),
       latitude: _location?.latitude,
       longitude: _location?.longitude,
-      status: asDraft ? ExpenseStatus.draft : ExpenseStatus.pending,
+      status: status,
+      reviewedBy: reviewedBy,
       createdAt: DateTime.now(),
     );
 

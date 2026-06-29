@@ -46,31 +46,12 @@ class AuthRepositoryImpl implements IAuthRepository {
       // Resolver la empresa según el modo elegido. Si algo falla a partir de
       // aquí, borramos la cuenta de Auth recién creada para no dejar huérfanos.
       try {
-        final UserEntity profile;
-        switch (company) {
-          case CreateCompany(:final name):
-            final created = await _profiles.createCompany(
-              name: name,
-              ownerId: base.uid,
-            );
-            profile = base.copyWith(
-              role: UserRole.admin,
-              companyId: created.id,
-            );
-          case JoinByCode(:final inviteCode):
-            final found = await _profiles.findCompanyByCode(inviteCode);
-            if (found == null) {
-              await _auth.deleteCurrentUser();
-              return const Failure('Código de invitación inválido.');
-            }
-            profile = base.copyWith(
-              role: UserRole.employee,
-              companyId: found.id,
-            );
-        }
-
+        final profile = await _resolveCompanyProfile(base, company);
         await _profiles.createUserProfile(profile);
         return Success(profile);
+      } on _InvalidInviteCode {
+        await _auth.deleteCurrentUser();
+        return const Failure('Código de invitación inválido.');
       } catch (_) {
         await _auth.deleteCurrentUser();
         return const Failure('No se pudo completar el registro. Intenta de nuevo.');
@@ -79,6 +60,85 @@ class AuthRepositoryImpl implements IAuthRepository {
       return Failure(_mapFirebaseError(e.code));
     } catch (_) {
       return const Failure('Error inesperado. Intenta de nuevo.');
+    }
+  }
+
+  /// Resuelve el perfil con empresa (crea empresa = admin, o se une = employee).
+  Future<UserEntity> _resolveCompanyProfile(
+    UserEntity base,
+    CompanyRegistration company,
+  ) async {
+    switch (company) {
+      case CreateCompany(:final name):
+        final created =
+            await _profiles.createCompany(name: name, ownerId: base.uid);
+        return base.copyWith(role: UserRole.admin, companyId: created.id);
+      case JoinByCode(:final inviteCode):
+        final found = await _profiles.findCompanyByCode(inviteCode);
+        if (found == null) throw const _InvalidInviteCode();
+        return base.copyWith(role: UserRole.employee, companyId: found.id);
+    }
+  }
+
+  @override
+  Future<Result<UserEntity>> signInWithGithub() async {
+    try {
+      final base = await _auth.signInWithGithub();
+      // ¿Ya tiene perfil/empresa? Si no, necesita onboarding.
+      final profile = await _profiles.getUserProfile(base.uid);
+      return Success(profile ?? base);
+    } on FirebaseAuthException catch (e) {
+      return Failure(_mapFirebaseError(e.code));
+    } catch (_) {
+      return const Failure('No se pudo iniciar sesión con GitHub.');
+    }
+  }
+
+  @override
+  Future<Result<UserEntity>> completeOnboarding({
+    required UserEntity baseUser,
+    required CompanyRegistration company,
+  }) async {
+    try {
+      final profile = await _resolveCompanyProfile(baseUser, company);
+      await _profiles.createUserProfile(profile);
+      return Success(profile);
+    } on _InvalidInviteCode {
+      return const Failure('Código de invitación inválido.');
+    } catch (_) {
+      return const Failure('No se pudo completar el registro. Intenta de nuevo.');
+    }
+  }
+
+  @override
+  Future<Result<void>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      await _auth.changePassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+      return const Success(null);
+    } on FirebaseAuthException catch (e) {
+      return Failure(_mapFirebaseError(e.code));
+    } catch (_) {
+      return const Failure('No se pudo cambiar la contraseña.');
+    }
+  }
+
+  @override
+  Future<Result<UserEntity>> updateDisplayName({
+    required UserEntity current,
+    required String displayName,
+  }) async {
+    try {
+      await _auth.updateDisplayName(displayName);
+      await _profiles.updateDisplayName(current.uid, displayName);
+      return Success(current.copyWith(displayName: displayName));
+    } catch (_) {
+      return const Failure('No se pudo actualizar el nombre.');
     }
   }
 
@@ -134,6 +194,15 @@ class AuthRepositoryImpl implements IAuthRepository {
         'invalid-email' => 'El correo ingresado no es válido.',
         'too-many-requests' => 'Demasiados intentos. Intenta más tarde.',
         'network-request-failed' => 'Sin conexión. Verifica tu internet.',
+        'requires-recent-login' =>
+          'Por seguridad, vuelve a iniciar sesión e inténtalo de nuevo.',
+        'account-exists-with-different-credential' =>
+          'Ya existe una cuenta con ese correo usando otro método.',
         _ => 'Error de autenticación. Intenta de nuevo.',
       };
+}
+
+/// Señal interna: el código de invitación no corresponde a ninguna empresa.
+class _InvalidInviteCode implements Exception {
+  const _InvalidInviteCode();
 }

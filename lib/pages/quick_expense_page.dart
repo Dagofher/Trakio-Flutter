@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../core/presentation/crud_action_state.dart';
 import '../core/utils/validators.dart';
 import '../desings/colors.dart';
+import '../features/approval_rules/presentation/providers/approval_rules_providers.dart';
 import '../features/auth/presentation/providers/auth_notifier.dart';
 import '../features/auth/presentation/providers/auth_state.dart';
 import '../features/budgets/domain/entities/budget_entity.dart';
@@ -104,6 +105,16 @@ class _QuickExpensePageState extends ConsumerState<QuickExpensePage> {
     if (auth is! AuthAuthenticated) return;
     final user = auth.user;
 
+    // Aplicar reglas de aprobación.
+    final rules = ref.read(approvalRulesStreamProvider).valueOrNull ?? const [];
+    final resolution = ref.read(approvalRuleEngineProvider).resolve(
+          rules: rules,
+          amount: amount,
+          categoryId: _categoryId!,
+        );
+    final status =
+        resolution.autoApprove ? ExpenseStatus.approved : ExpenseStatus.pending;
+
     final expense = ExpenseEntity(
       id: '',
       companyId: user.companyId ?? '',
@@ -114,7 +125,8 @@ class _QuickExpensePageState extends ConsumerState<QuickExpensePage> {
       description: _descriptionController.text.trim(),
       latitude: _location?.latitude,
       longitude: _location?.longitude,
-      status: ExpenseStatus.pending,
+      status: status,
+      reviewedBy: resolution.autoApprove ? 'system' : null,
       createdAt: DateTime.now(),
     );
     await ref

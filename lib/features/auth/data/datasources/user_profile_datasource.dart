@@ -67,6 +67,10 @@ class UserProfileDatasource {
     });
   }
 
+  /// Actualiza el nombre visible del usuario en su perfil.
+  Future<void> updateDisplayName(String uid, String displayName) =>
+      _users.doc(uid).update({'displayName': displayName});
+
   /// Lee el perfil del usuario. Null si aún no existe.
   Future<UserEntity?> getUserProfile(String uid) async {
     final doc = await _users.doc(uid).get();
