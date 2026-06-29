@@ -27,6 +27,16 @@ class Validators {
     return null;
   }
 
+  /// Monto obligatorio: debe ser un número mayor que 0.
+  static String? requiredAmount(String? value) {
+    final v = value?.trim() ?? '';
+    if (v.isEmpty) return 'Ingresa un monto';
+    final amount = double.tryParse(v);
+    if (amount == null) return 'Monto no válido';
+    if (amount <= 0) return 'Debe ser mayor que 0';
+    return null;
+  }
+
   /// Monto opcional: vacío es válido; si hay valor, debe ser número positivo.
   static String? optionalAmount(String? value) {
     final v = value?.trim() ?? '';

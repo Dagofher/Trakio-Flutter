@@ -43,6 +43,12 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>(
   ),
 );
 
+/// companyId del usuario autenticado (o null si no hay sesión).
+final companyIdProvider = Provider<String?>((ref) {
+  final auth = ref.watch(authProvider);
+  return auth is AuthAuthenticated ? auth.user.companyId : null;
+});
+
 /// Empresa del usuario autenticado (para mostrar el código de invitación, etc.).
 final companyProvider = FutureProvider<CompanyEntity?>((ref) async {
   final auth = ref.watch(authProvider);

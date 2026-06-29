@@ -71,5 +71,39 @@ service cloud.firestore {
         request.resource.data.companyId == myCompanyId();
       allow delete: if isAdmin() && resource.data.companyId == myCompanyId();
     }
+
+    // ── departments/ ───────────────────────────────────────
+    match /departments/{departmentId} {
+      allow read: if isSignedIn() && resource.data.companyId == myCompanyId();
+      allow create: if isAdmin() &&
+        request.resource.data.companyId == myCompanyId();
+      allow update: if isAdmin() &&
+        resource.data.companyId == myCompanyId() &&
+        request.resource.data.companyId == myCompanyId();
+      allow delete: if isAdmin() && resource.data.companyId == myCompanyId();
+    }
+
+    // ── budgets/ ───────────────────────────────────────────
+    match /budgets/{budgetId} {
+      function budgetCompanyId() {
+        return get(/databases/$(database)/documents/budgets/$(budgetId)).data.companyId;
+      }
+
+      allow read: if isSignedIn() && resource.data.companyId == myCompanyId();
+      allow create: if isAdmin() &&
+        request.resource.data.companyId == myCompanyId();
+      allow update: if isAdmin() &&
+        resource.data.companyId == myCompanyId() &&
+        request.resource.data.companyId == myCompanyId();
+      allow delete: if isAdmin() && resource.data.companyId == myCompanyId();
+
+      // ── payments/ (pagos de adquisiciones) ───────────────
+      match /payments/{paymentId} {
+        // Miembros de la empresa pueden ver el historial de pagos.
+        allow read: if isSignedIn() && budgetCompanyId() == myCompanyId();
+        // Solo un admin de la empresa registra o elimina pagos.
+        allow create, delete: if isAdmin() && budgetCompanyId() == myCompanyId();
+      }
+    }
   }
 }

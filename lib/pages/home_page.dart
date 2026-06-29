@@ -14,6 +14,7 @@ class HomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
     final user = authState is AuthAuthenticated ? authState.user : null;
+    final canManage = user?.isAdmin ?? false;
 
     return Scaffold(
       appBar: AppBar(
@@ -67,11 +68,27 @@ class HomePage extends ConsumerWidget {
           ),
           const SizedBox(height: 32),
           _NavCard(
+            icon: Icons.account_balance_wallet_rounded,
+            title: canManage ? 'Presupuestos' : 'Mi presupuesto disponible',
+            subtitle: 'Consulta y gestiona presupuestos',
+            onTap: () => context.push('/budgets'),
+          ),
+          const SizedBox(height: 12),
+          _NavCard(
             icon: Icons.category_rounded,
             title: 'Categorías',
             subtitle: 'Gestiona las categorías de gasto',
             onTap: () => context.push('/categories'),
           ),
+          if (canManage) ...[
+            const SizedBox(height: 12),
+            _NavCard(
+              icon: Icons.apartment_rounded,
+              title: 'Departamentos',
+              subtitle: 'Organiza tu empresa por áreas',
+              onTap: () => context.push('/departments'),
+            ),
+          ],
         ],
       ),
     );

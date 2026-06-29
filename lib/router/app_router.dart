@@ -5,7 +5,9 @@ import '../features/auth/domain/entities/user_entity.dart';
 import '../features/auth/presentation/providers/auth_notifier.dart';
 import '../features/auth/presentation/providers/auth_state.dart';
 import '../pages/admin_panel_page.dart';
+import '../pages/budgets_page.dart';
 import '../pages/categories_page.dart';
+import '../pages/departments_page.dart';
 import '../pages/forgot_password_page.dart';
 import '../pages/home_page.dart';
 import '../pages/login_page.dart';
@@ -39,6 +41,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/categories',
         builder: (context, state) => const CategoriesPage(),
+      ),
+      GoRoute(
+        path: '/departments',
+        builder: (context, state) => const DepartmentsPage(),
+      ),
+      GoRoute(
+        path: '/budgets',
+        builder: (context, state) => const BudgetsPage(),
       ),
       GoRoute(path: '/admin', builder: (context, state) => const AdminPanelPage()),
     ],
