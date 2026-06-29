@@ -68,6 +68,20 @@ class HomePage extends ConsumerWidget {
           ),
           const SizedBox(height: 32),
           _NavCard(
+            icon: Icons.document_scanner_rounded,
+            title: 'Gasto rápido',
+            subtitle: 'Escanea una factura con la cámara',
+            onTap: () => context.push('/expenses/quick'),
+          ),
+          const SizedBox(height: 12),
+          _NavCard(
+            icon: Icons.receipt_long_rounded,
+            title: 'Mis gastos',
+            subtitle: 'Registra y consulta tus gastos',
+            onTap: () => context.push('/expenses'),
+          ),
+          const SizedBox(height: 12),
+          _NavCard(
             icon: Icons.account_balance_wallet_rounded,
             title: canManage ? 'Presupuestos' : 'Mi presupuesto disponible',
             subtitle: 'Consulta y gestiona presupuestos',

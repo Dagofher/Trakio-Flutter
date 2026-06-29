@@ -8,6 +8,9 @@ import '../pages/admin_panel_page.dart';
 import '../pages/budgets_page.dart';
 import '../pages/categories_page.dart';
 import '../pages/departments_page.dart';
+import '../pages/expense_form_page.dart';
+import '../pages/expenses_page.dart';
+import '../pages/quick_expense_page.dart';
 import '../pages/forgot_password_page.dart';
 import '../pages/home_page.dart';
 import '../pages/login_page.dart';
@@ -49,6 +52,20 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/budgets',
         builder: (context, state) => const BudgetsPage(),
+      ),
+      GoRoute(
+        path: '/expenses',
+        builder: (context, state) => const ExpensesPage(),
+        routes: [
+          GoRoute(
+            path: 'new',
+            builder: (context, state) => const ExpenseFormPage(),
+          ),
+          GoRoute(
+            path: 'quick',
+            builder: (context, state) => const QuickExpensePage(),
+          ),
+        ],
       ),
       GoRoute(path: '/admin', builder: (context, state) => const AdminPanelPage()),
     ],

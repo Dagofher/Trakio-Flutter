@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../desings/colors.dart';
 import '../features/budgets/domain/entities/budget_entity.dart';
 import '../features/budgets/presentation/providers/budgets_providers.dart';
+import '../features/expenses/presentation/providers/expenses_providers.dart';
 
 class BudgetCard extends ConsumerWidget {
   final BudgetEntity budget;
@@ -212,7 +213,7 @@ class _OperationalBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final consumed = ref.watch(budgetConsumedProvider(budget));
+    final consumed = ref.watch(budgetConsumptionProvider(budget.id));
     final amount = budget.amount;
     final progress = amount <= 0 ? 0.0 : (consumed / amount).clamp(0.0, 1.0);
     final available = (amount - consumed).clamp(0.0, double.infinity);

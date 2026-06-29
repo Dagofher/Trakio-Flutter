@@ -105,5 +105,30 @@ service cloud.firestore {
         allow create, delete: if isAdmin() && budgetCompanyId() == myCompanyId();
       }
     }
+
+    // ── expenses/ ──────────────────────────────────────────
+    match /expenses/{expenseId} {
+      // El dueño ve su gasto; un admin ve los de su empresa.
+      allow read: if isSignedIn() && (
+        resource.data.userId == request.auth.uid ||
+        (isAdmin() && resource.data.companyId == myCompanyId())
+      );
+
+      // Un usuario crea su propio gasto dentro de su empresa.
+      allow create: if isSignedIn() &&
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.companyId == myCompanyId();
+
+      // El dueño puede actualizar/eliminar mientras sea borrador o pendiente;
+      // un admin puede actualizar (para aprobar/rechazar en la Fase 6).
+      allow update: if isSignedIn() && (
+        (resource.data.userId == request.auth.uid &&
+         resource.data.status in ['draft', 'pending']) ||
+        (isAdmin() && resource.data.companyId == myCompanyId())
+      );
+      allow delete: if isSignedIn() &&
+        resource.data.userId == request.auth.uid &&
+        resource.data.status in ['draft', 'pending'];
+    }
   }
 }

@@ -49,16 +49,9 @@ final budgetPaidProvider =
   return payments.fold<double>(0, (acc, p) => acc + p.amount);
 });
 
-/// Monto consumido de un presupuesto operativo.
-///
-/// Por ahora devuelve 0: el cálculo real se conectará en la Fase 5 (Gastos),
-/// sumando los gastos aprobados que apunten a este presupuesto. Aislarlo aquí
-/// permite cambiar solo esta línea sin tocar la UI.
-final budgetConsumedProvider =
-    Provider.family<double, BudgetEntity>((ref, budget) {
-  // TODO(fase5): sumar gastos aprobados del presupuesto `budget.id`.
-  return 0;
-});
+// El consumo de un presupuesto operativo (suma de gastos comprometidos) vive
+// en la feature de gastos: ver budgetConsumptionProvider en
+// expenses/presentation/providers/expenses_providers.dart
 
 // ── Acciones ──────────────────────────────────────────────
 
