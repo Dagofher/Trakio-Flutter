@@ -56,7 +56,7 @@ class AdminPanelPage extends ConsumerWidget {
             const SizedBox(height: 24),
             const Text(
               'Comparte este código con tu equipo para que se una a la empresa.\n'
-              'Aquí gestionarás usuarios, presupuestos y reglas (próximas fases).',
+              'Aquí gestionarás usuarios, presupuestos y reglas.',
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.textColor, height: 1.5),
             ),
